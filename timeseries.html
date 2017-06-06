@@ -41,19 +41,34 @@
                 .y( (d) => yscale(d) );
 
             path = canvas.append("path")
-                .attr("d", line(data))
+                .datum(data)
+                .attr("d", line)
                 .attr("style", "stroke: black; stroke-width: 1; fill:none;")
 
-            d3.interval(
+            transtime = 150;
+
+            // d3.interval( // wiggle
+            //     function() {
+            //         data.push(sample_new());
+            //         data.shift();
+            //         path.transition().attr("d", line) // recalc for new data
+            //     },
+            //     transtime
+            // );
+
+
+            d3.interval( // smooth
                 function() {
-                    data.push(sample_new);
+                    data.push(sample_new());
                     path.attr("d", line(data))
-                        .attr("transform", "none")
+                        .attr("transform", null)
                         .transition()
-                            .attr("transform", "translate(" + scale(-1) + ")")
+                            .attr("transform", "translate(" + xscale(-1) + ")")
+                            .duration(transtime)
+                            // .ease("linear");
                     data.shift();
                 },
-                500
+                transtime
             );
 
 
