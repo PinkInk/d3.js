@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+
+        <script>
+
+            width = 900;
+            height = 400;
+            margin = { left: 50, right: 50, top: 10, bottom: 50, };
+
+            data = Array.from(Array(20)).map(
+                function() {
+                    r = Math.random()*100;
+                    return {
+                        r: r,
+                        cx: r+(Math.random()*(width-(2*r))),
+                        cy: r+(Math.random()*(height-(2*r))),
+                        vx: Math.random()*width/r,
+                        vy: Math.random()*height/r,
+                    };
+                }
+            );
+
+            canvas = d3.select("#canvas")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom);
+
+            //clip path
+            canvas.append("defs")
+                .append("clipPath")
+                    .attr("id", "cp")
+                        .append("rect")
+                            .attr("x", margin.left)
+                            .attr("y", margin.top)
+                            .attr("width", width)
+                            .attr("height", height)
+
+            chart = canvas.append("g")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .attr("style", "clip-path: url(#cp);");
+
+            function update(data) {
+                circles = chart.selectAll("circle")
+                    .data(data)
+
+                circles.exit().remove();
+
+                circles.enter().append("circle")
+                    .attr("style", "fill-opacity:.5; stroke-width:1; stroke:grey;")
+                    .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)")
+                .merge(circles)
+                    .attr("cx", (d)=>d.cx)
+                    .attr("cy", (d)=>d.cy)
+                    .attr("r", (d)=>d.r)
+            };
+
+            update(data);
+
+            d3.interval(
+                function() {
+                    data.forEach(
+                        function(e) {
+                            if (e.cx+e.vx > width || e.cx+e.vx < 0)
+                                e.vx = -e.vx;
+                            if (e.cy+e.vy > height || e.cy+e.vy < 0)
+                                e.vy=-e.vy;
+                            e.cx = e.cx + e.vx;
+                            e.cy = e.cy + e.vy;
+                        }
+                    );
+                    update(data);
+                },
+                60
+            );
+
+        </script>
+
+    </body>
+
+</html>

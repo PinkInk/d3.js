@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 900;
+            height = 600;
+            radius = Math.min(width, height)/2;
+
+            data = Array.from(Array(20)).map(
+                (_) => Math.random()
+            );
+
+            canvas = d3.select("#canvas")
+                .attr("width", width)
+                .attr("height", height);
+
+            canvas.append("rect")
+                .attr("x", 0).attr("y", 0)
+                .attr("width", width).attr("height", height)
+                .attr("style", "fill:none; stroke:lightgrey;");
+
+            arc = d3.arc()
+                .outerRadius(radius)
+                .innerRadius(radius/1.2);
+
+            pie = d3.pie()
+                .sort(null)
+                .value( (d) => d );
+
+            path = canvas.datum(data).selectAll("path")
+                    .data(pie)
+                .enter().append("path")
+                    .attr("d", arc)
+                    .each( function(d) {this._current = d; }) // store inital angles(?)
+                    .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)")
+                    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+            d3.interval(
+                function() {
+                    data = Array.from(Array(20)).map(
+                        (_) => Math.random()
+                    );
+
+                    canvas.datum(data) // change the data
+                    path = path.data(pie);  // compute new angles
+                    // or;
+                    // canvas.datum(data).selectAll("path").data(pie);
+
+                    // https://bl.ocks.org/mbostock/1346410
+                    // http://bl.ocks.org/mbostock/5100636
+                    // https://github.com/d3/d3-transition#transition_attrTween
+                    path.transition().duration(750).attrTween("d", arcTween);
+                },
+                500
+            );
+
+            // angle transitioning factory function
+            function arcTween(a) {
+                var i = d3.interpolate(this._current, a);
+                this._current = i(0);
+                return function(t) {
+                    // note reliance on arc fn
+                    return arc(i(t));
+                };
+            };
+
+        </script>
+
+    </body>
+
+</html>

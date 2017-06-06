@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 900;
+            height = 600;
+            datapoints = 120;
+            transtime = 1200;
+
+            nodata = Array.from(Array(datapoints)).map(
+                (_) => 0
+            );
+            data = Array.from(Array(datapoints)).map(
+                (_) => (Math.random()*height)
+            );
+
+            canvas = d3.select("#canvas")
+                .attr("width", width)
+                .attr("height", height);
+
+            canvas.append("rect")
+                .attr("x", 0).attr("y", 0)
+                .attr("width", width).attr("height", height)
+                .attr("style", "fill:none; stroke:lightgrey;");
+
+            xscale = d3.scaleLinear()
+                .domain([0, datapoints])
+                .range([width, 0]);
+
+            area = d3.area()
+                .x( (d,i) => xscale(i) )
+                .y0( height )
+                .y1( (d) => height-d )
+                .curve(d3.curveCardinal);
+
+            path = canvas.append("path")
+                .attr("style", "stroke: black; stroke-width: 1; fill:lightgrey;")
+                .attr("d", area(nodata));
+
+            d3.interval(
+                function() {
+                    path.transition()
+                            .attr("d", area(data))
+                            .duration(transtime)
+                        .transition()
+                            .attr("d", area(nodata))
+                            .duration(transtime);
+                },
+                transtime*2
+            );
+
+        </script>
+
+    </body>
+
+</html>

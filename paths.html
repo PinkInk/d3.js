@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 900;
+            height = 600;
+
+            data = Array.from(Array(20)).map(
+                (_) => ({
+                    x: Math.random()*width,
+                    y: Math.random()*height,
+                    vx: Math.random()*10,
+                    vy: Math.random()*10,
+                })
+            );
+
+            data1 = Array.from(Array(20)).map(
+                (_) => ({
+                    x: Math.random()*width,
+                    y: Math.random()*height,
+                    vx: Math.random()*10,
+                    vy: Math.random()*10,
+                })
+            );
+
+            function update(data) {
+                data.forEach(
+                    function(e) {
+                        if (e.x+e.vx > width || e.x+e.vx < 0)
+                            e.vx = -e.vx;
+                        if (e.y+e.vy > height || e.y+e.vy < 0)
+                            e.vy = -e.vy;
+                        e.x = e.x + e.vx;
+                        e.y = e.y + e.vy;
+                    }
+                );
+                return data;
+            }
+
+            canvas = d3.select("#canvas")
+                .attr("width", width)
+                .attr("height", height);
+
+            canvas.append("rect")
+                .attr("x", 0).attr("y", 0)
+                .attr("width", width).attr("height", height)
+                .attr("style", "fill:none; stroke:lightgrey;")
+
+            line = d3.line()
+                .x( (d)=>d.x )
+                .y( (d)=>d.y )
+                .curve(d3.curveCardinalClosed);
+
+            path = canvas.append("path")
+                .attr("style", "stroke: black; stroke-width: 1; fill-opacity:.5;")
+                .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)")
+                .attr("d", line(data));
+
+            path1 = canvas.append("path")
+                .attr("style", "stroke: black; stroke-width: 1; fill-opacity:.5;")
+                .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)")
+                .attr("d", line(data1));
+
+            transtime = 60;
+
+            d3.interval(
+                function() {
+                    path.transition()
+                        .attr("d", line(update(data)))
+                        .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)")
+                        .duration(transtime);
+                    path1.transition()
+                        .attr("d", line(update(data1)))
+                        .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)")
+                        .duration(transtime);
+                },
+                transtime
+            );
+
+        </script>
+
+    </body>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 900;
+            height = 600;
+            datapoints = 120;
+
+            data = Array.from(Array(datapoints)).map(
+                (_) => ({
+                    a: Math.random()*height/5,
+                    b: Math.random()*height/5,
+                    c: Math.random()*height/5,
+                    d: Math.random()*height/5,
+                    e: Math.random()*height/5,
+                })
+            );
+
+            canvas = d3.select("#canvas")
+                .attr("width", width)
+                .attr("height", height);
+
+            canvas.append("rect")
+                .attr("x", 0).attr("y", 0)
+                .attr("width", width).attr("height", height)
+                .attr("style", "fill:none; stroke:lightgrey;");
+
+            xscale = d3.scaleLinear()
+                .domain([0, datapoints])
+                .range([width, 0]);
+
+            yscale = d3.scaleLinear()
+                .domain([0, height])
+                .range([height, 0]);
+
+            stack = d3.stack()
+                .keys(Object.keys(data[0]))
+                .order(d3.stackOrderNone)
+                .offset(d3.stackOffsetNone);
+
+            area = d3.area()
+                .x( (d,i) => xscale(i) )
+                .y0( (d) => yscale(d[0]) )
+                .y1( (d) => yscale(d[1]) )
+                .curve(d3.curveCardinal);
+
+            canvas.selectAll(".layer")
+                .data(stack(data))
+                    .enter().append("path")
+                        .attr("d", area)
+                        .attr("style", "stroke:grey; stroke-width:1; ")
+                        .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)");
+
+
+        </script>
+
+    </body>
+
+</html>
