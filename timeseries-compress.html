@@ -69,7 +69,9 @@
             d3.interval(
                 function() {
                     data.push(sample_new());
-                    data.shift();
+                    // data.shift();
+                    x.domain([0, data.length]);
+                    xaxis.call(d3.axisBottom(x));
                     path.attr("d", area);
                 },
                 250
