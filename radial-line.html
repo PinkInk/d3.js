@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 600;
+            height = 600;
+            radius = Math.min(width,height)/2;
+            extents_min = radius-60;
+            extents_max = radius;
+
+            data = d3.range(0, 2*Math.PI, 0.1).map(
+                (t) => [t, Math.random()]
+            );
+
+            canvas = d3.select("#canvas")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                    // translate coordinate space
+                    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+            r = d3.scaleLinear()
+                .domain([0, 1])
+                .range([extents_min, extents_max]);
+
+            canvas.append("g")
+                .selectAll("g")
+                    // generate 'data' as scale divisions
+                    .data(r.ticks(10)) // .slice(1)) // skips inner, useful when center is inner extent?
+                    .enter().append("g")
+                        .append("circle")
+                            .attr("r", r)
+                            .attr("style", "fill:none; stroke:grey; stroke-dasharray:1,2;");
+
+            canvas.append("g")
+                .selectAll("g")
+                    .data(d3.range(0, 360, 15))
+                    .enter().append("g")
+                        .attr("transform", function(d) { return "rotate(" + -d + ")"; })
+                        .append("line")
+                            .attr("x1", extents_min)
+                            .attr("x2", extents_max)
+                            .attr("style", "stroke:black");
+
+            line = d3.radialLine()
+                .radius( (d) => r(d[1]) )
+                .angle( (d) => d[0] )
+                .curve(d3.curveBasis);
+
+            canvas.append("path")
+                .datum(data)
+                .attr("d", line)
+                .attr("style", "fill:none; stroke:red; stroke-width:2;");
+
+        </script>
+
+    </body>
+
+</html>
