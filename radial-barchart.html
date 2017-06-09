@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 600;
+            height = 600;
+            radius = Math.min(width,height)/2;
+
+            data = Array.from(Array(10)).map(
+                (_) => [Math.random(), Math.random(), Math.random() ]
+            );
+
+            canvas = d3.select("#canvas")
+                .attr("width", width)
+                .attr("height", height);
+
+            arc = d3.arc()
+                .innerRadius(
+                    (d) => (radius/2)-(d.data[1] * (radius/4))
+                    // function(d) {
+                    //     console.log(d.data);
+                    //     return (radius/2)+(d.data[1] * 20)
+                    // }
+                )
+                .outerRadius( (d) => (radius/2)+(d.data[2] * (radius/4)) )
+                // .cornerRadius(5)
+                // .padAngle(Math.PI/100)
+
+            pie = d3.pie()
+                .sort(null)
+                .value( (d) => d[0] );
+
+            canvas.selectAll("path")
+                .data(pie(data))
+                .enter()
+                    .append("path")
+                        .attr("d", arc)
+                        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+                        // .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)")
+                        .attr("style", "fill:lightgrey; stroke:black; stroke-width:1;");
+
+            canvas.append("circle")
+                .attr("cx", width/2)
+                .attr("cy", height/2)
+                .attr("r", radius/2)
+                .attr("style", "fill:none; stroke:black; stroke-width:3;");
+
+
+        </script>
+
+    </body>
+
+</html>
