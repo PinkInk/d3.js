@@ -15,11 +15,12 @@
             width = 600;
             height = 600;
             radius = Math.min(width,height)/2;
-            extents_min = radius-60;
+            extents_min = radius/2;
             extents_max = radius;
 
             data = d3.range(0, 2*Math.PI, 0.1).map(
-                (t) => [t, Math.random()]
+                // (t) => [t, Math.random()]
+                (t) => [t, Math.sin(t*t*4)*Math.cos(t*t*4) ]
             );
 
             canvas = d3.select("#canvas")
@@ -30,7 +31,7 @@
                     .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
             r = d3.scaleLinear()
-                .domain([0, 1])
+                .domain([-1, 1])
                 .range([extents_min, extents_max]);
 
             canvas.append("g")

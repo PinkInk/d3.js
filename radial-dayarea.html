@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 600;
+            height = 600;
+            radius = Math.min(width,height)/2;
+            margin = {left:50, right:50, top:50, bottom:50 }
+
+            // bluuuurk!!!!!?
+            today = new Date(new Date().setHours(0, 0, 0, 0));
+            tomorrow = new Date(new Date().setHours(0, 0, 0, 0));
+            tomorrow = new Date(tomorrow.setDate(tomorrow.getDate()+1));
+
+            hours = d3.timeHours(today, tomorrow, 1);
+            data = hours.map( (d) => [d, Math.random()] );
+            data1 = hours.map( (d) => [d, Math.random()] );
+            data2 = hours.map( (d) => [d, Math.random()] );
+
+
+            canvas = d3.select("#canvas")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+
+            chart = canvas.append("g")
+                    // translate & rotate coordinate space
+                    .attr(
+                        "transform", "translate(" + ((width / 2) + margin.left) + "," + ((height / 2) + margin.top) + ")"
+                        + " rotate(180)"
+                    );
+
+            r = d3.scaleLinear()
+                .domain([0, 1])
+                .range([radius/2, radius]);
+
+            a = d3.scaleLinear()
+                .domain([today, tomorrow])
+                .range([0, Math.PI*2]);
+
+            gr = chart.append("g")
+                .selectAll("g")
+                    // generate 'data' as scale divisions
+                    .data(r.ticks(10)) //.slice(1)) // .slice(1)) skips inner x rings
+                    .enter().append("g")
+
+            gr.append("circle")
+                .attr("r", r)
+                .attr("style", "fill:none; stroke:grey; stroke-dasharray:1,2;");
+
+            gr.append("text")
+                .attr("y", function(d) { return -r(d) - 4; })
+                .attr("transform", "rotate(180)")
+                .attr("style", "font: 10px sans-serif")
+                .text(function(d) { return d.toFixed(2); });
+
+            ga = chart.append("g")
+                .selectAll("g")
+                    .data(hours.map( (d) => a(d)*(180/Math.PI) ))
+                    .enter().append("g")
+                        .attr("transform", (d) => "rotate(" + (d - 90) + ")" )
+
+            ga.append("line")
+                .attr("x1", radius/2)
+                .attr("x2", radius)
+                .attr("style", "stroke:black");
+
+            ga.append("text")
+                .attr("x", radius + 6)
+                .attr("dy", ".35em")
+                .text ( (d,i) => hours[i].toLocaleTimeString().substr(0,8) )
+                    .attr("style", "font: 10px sans-serif")
+
+            area = d3.radialArea()
+                .innerRadius(radius/2)
+                .outerRadius( (d) => r(d[1]) )
+                .angle( (d) => a(d[0]) )
+                .curve(d3.curveBasis);
+
+            line = d3.radialLine()
+                .radius( (d) => r(d[1]) )
+                .angle( (d) => a(d[0]) )
+                .curve(d3.curveBasis);
+
+            chart.append("path")
+                .datum(data)
+                .attr("d", area)
+                .attr("style", "fill:grey; fill-opacity:0.5;");
+
+            chart.append("path")
+                .datum(data1)
+                .attr("d", area)
+                .attr("style", "fill:grey; fill-opacity:0.5;");
+
+            chart.append("path")
+                .datum(data2)
+                .attr("d", area)
+                .attr("style", "fill:grey; fill-opacity:0.5;");
+
+            chart.append("path")
+                .datum(data)
+                .attr("d", line)
+                .attr("style", "fill:none; stroke:red; stroke-width:2;");
+
+            chart.append("path")
+                .datum(data1)
+                .attr("d", line)
+                .attr("style", "fill:none; stroke:blue; stroke-width:2;");
+
+            chart.append("path")
+                .datum(data2)
+                .attr("d", line)
+                .attr("style", "fill:none; stroke:green; stroke-width:2;");
+
+            chart.append("text")
+                .text(today.toDateString())
+                .attr("style", "font: 20px sans-serif; text-anchor:middle;")
+                // the coord space is inverted
+                .attr("transform", "rotate(180)")
+
+        </script>
+
+    </body>
+
+</html>
