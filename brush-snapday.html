@@ -16,11 +16,10 @@
             height = 50;
             margin = {left:15, right:15, top:15, bottom:30}
 
-            today = new Date()
-            today.setHours(0,0,0);
-            start = new Date(today.getFullYear(), today.getMonth(), 1);
-            end = new Date(start.getFullYear(), start.getMonth()+1, 1);
-            monthdays = new Date(start.getFullYear(), start.getMonth()+1, 0).getDate();
+            today = d3.timeDay.floor(new Date());
+            start = d3.timeMonth.floor(today);
+            end = d3.timeMonth.offset(start, 1);
+            monthdays = d3.timeDay.offset(end, -1).getDate();
 
             data = [];
             datapoints = 200;
