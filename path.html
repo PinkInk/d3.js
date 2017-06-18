@@ -15,7 +15,7 @@
             width = 900;
             height = 600;
 
-            data = Array.from(Array(20)).map(
+            data = d3.range(20).map(
                 (_) => ({
                     x: Math.random()*width,
                     y: Math.random()*height,
