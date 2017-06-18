@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 600;
+            height = 600;
+            size = 5;
+            margin = {left:50, right:50, top:50, bottom:50 }
+
+            x = d3.scaleLinear()
+                .domain([0, width/size])
+                .range([0, Math.PI*2])
+
+            y = d3.scaleLinear()
+                .domain([0, height/size])
+                .range([0, Math.PI*2])
+
+            // nested (x,y) arrays of values
+            data = d3.range(height/size).map(
+                (d,i) => d3.range(width/size).map(
+                    // (d,j) => Math.sin(x(i)) * Math.cos(y(j))
+                    // (d,j) => Math.sin(x(i)) * Math.sin(y(j))
+                    (d,j) => Math.cos(x(i)) * Math.cos(y(j))
+                    // (d,j) => Math.cos(x(i*j)) * Math.sin(y(i*j))
+                    // (d,j) => Math.sin(x(j*i))
+                )
+            );
+
+            canvas = d3.select("#canvas")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+
+            chart = canvas.append("g")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+
+            // hsl color scale
+            max = d3.max(data.map( d => d3.max(d) ))
+            min = d3.min(data.map( d => d3.min(d) ))
+            z = d3.scaleLinear()
+                .domain([min, max])
+                .range(["hsl(0,100%,50%)", "hsl(360,100%,50%"]);
+                // .range(["hsl(0,100%,50%)", "hsl(90,100%,50%"]);
+
+            // row groups
+            series = chart.selectAll(".series")
+                .data(data)
+                    .enter().append("g")
+                        .attr("width", width)
+                        .attr("height", size )
+                        .attr("transform", (d,i) => "translate(0," + (i*size) + ")" )
+                        .attr("class", "series")
+
+            // populate row groups with rects
+            points = series.selectAll(".series")
+                .data( d => d )
+                    .enter().append("rect")
+                        .attr("x", (d,i) => i*size )
+                        .attr("y", 0)
+                        .attr("width", size)
+                        .attr("height", size)
+                        .attr("style", d => "fill:"+z(d) )
+
+        </script>
+
+    </body>
+
+</html>
