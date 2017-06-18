@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+
+        <svg id="canvas"></svg>
+
+        <script>
+
+            width = 900;
+            height = 600;
+            margin = {left:50, right:50, top:50, bottom:50 }
+
+            count = 100;
+            data = d3.range(count).map(
+                (d,i) => ({
+                    "x": Math.random(),
+                    "y": Math.random(),
+                    "z": Math.random()
+                })
+            )
+
+            canvas = d3.select("#canvas")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+
+            chart = canvas.append("g")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+
+            x = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, width]);
+
+            y = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, height]);
+
+            z = d3.scaleLinear()
+                .domain([0, 1])
+                .range([0, 5]);
+
+            circles = chart.append("g")
+                .attr("class", "circles")
+                .selectAll(".datapoint")
+                    .data(data).enter()
+                        .append("circle")
+                            .attr("class", "datapoint")
+                            .attr("cx", d => x(d.x) )
+                            .attr("cy", d => y(d.y) )
+                            .attr("r", d => z(d.z) )
+                            .attr("style", "fill:none; stroke:red; stroke-width:1;")
+
+            voronoi = d3.voronoi()
+                .x( d => x(d.x) )
+                .y( d => y(d.y) )
+                .size([width, height])(data);
+
+            polygons = voronoi.polygons();
+
+            // polygon is an array of arrays of boundary coords
+            line = d3.line()
+                .x( (d)=>d[0] )
+                .y( (d)=>d[1] );
+
+            for (i=0 ; i<polygons.length ; i++) {
+                for(j=0 ; j<polygons[i].length ; j++) {
+                    chart.append("path")
+                        .attr("style", "stroke: none; fill-opacity:.1;")
+                        .style("fill", (_) => "hsl(" + Math.random()*360+",100%,50%)")
+                        .attr("d", line(polygons[i]))
+                }
+            }
+
+        </script>
+
+    </body>
+
+</html>
