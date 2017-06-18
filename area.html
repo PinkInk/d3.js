@@ -17,12 +17,8 @@
             datapoints = 120;
             transtime = 1200;
 
-            nodata = Array.from(Array(datapoints)).map(
-                (_) => 0
-            );
-            data = Array.from(Array(datapoints)).map(
-                (_) => (Math.random()*height)
-            );
+            nodata = d3.range(datapoints).map(_=>0);
+            data = d3.range(datapoints).map(_=>Math.random()*height);
 
             canvas = d3.select("#canvas")
                 .attr("width", width)
